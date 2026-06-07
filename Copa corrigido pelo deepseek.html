@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Copa 2026 - Bolão de Palpites Oficial</title>
+    <style>
+        /* (mantenha todo o seu CSS original aqui) */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a472a 0%, #0e2a1a 100%);
+            min-height: 100vh;
+        }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        .card { background: white; border-radius: 20px; padding: 25px; margin-bottom: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .card h2 { color: #2d3748; margin-bottom: 20px; border-left: 5px solid #48bb78; padding-left: 15px; }
+        .header { background: white; border-radius: 20px; padding: 20px 30px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+        .logo h1 { color: #1a472a; font-size: 28px; }
+        .logo p { color: #718096; }
+        .user-info { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+        .user-name { font-weight: bold; color: #2d3748; }
+        .admin-badge { background: #e53e3e; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+        .btn-sair { background: #e53e3e; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; }
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
+        .btn-primary { background: #48bb78; color: white; }
+        .btn-primary:hover { background: #38a169; transform: translateY(-2px); }
+        .btn-success { background: #48bb78; color: white; width: 100%; margin-top: 20px; padding: 12px; font-size: 16px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #2d3748; }
+        .form-group input { width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px; }
+        .grupo-section { margin-bottom: 30px; background: #f7fafc; border-radius: 12px; padding: 15px; }
+        .grupo-titulo { background: #2d3748; color: white; padding: 10px 15px; border-radius: 10px; margin-bottom: 15px; font-size: 18px; font-weight: bold; }
+        .jogos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .jogo-card { background: white; border-radius: 12px; padding: 15px; border: 1px solid #e2e8f0; transition: all 0.3s; }
+        .jogo-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); transform: translateY(-2px); }
+        .jogo-times { font-weight: bold; font-size: 16px; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+        .jogo-palpite { display: flex; align-items: center; gap: 15px; margin-top: 10px; flex-wrap: wrap; }
+        .jogo-palpite input { width: 70px; padding: 8px; text-align: center; border: 2px solid #cbd5e0; border-radius: 8px; font-size: 16px; }
+        .btn-salvar-individual { background: #48bb78; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
+        .btn-salvar-individual:hover { background: #38a169; transform: scale(1.02); }
+        .btn-salvar-individual:disabled { background: #a0aec0; cursor: not-allowed; transform: none; }
+        .status-salvo { font-size: 12px; color: #276749; background: #c6f6d5; padding: 4px 8px; border-radius: 20px; display: inline-block; }
+        .feedback-salvo { font-size: 11px; animation: fadeOut 1.5s forwards; }
+        @keyframes fadeOut { 0% { opacity: 1; } 70% { opacity: 1; } 100% { opacity: 0; display: none; } }
+        .jogo-resultado { font-size: 12px; color: #718096; margin-top: 8px; padding-top: 8px; border-top: 1px dashed #e2e8f0; }
+        .tabela-classificacao { overflow-x: auto; }
+        .tabela-classificacao table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .tabela-classificacao th { background: #2d3748; color: white; padding: 12px; text-align: center; font-size: 14px; }
+        .tabela-classificacao td { padding: 10px; text-align: center; border-bottom: 1px solid #e2e8f0; }
+        .tabela-classificacao tr:hover { background: #f7fafc; }
+        .ranking-item { display: flex; align-items: center; gap: 15px; padding: 12px; border-bottom: 1px solid #e2e8f0; }
+        .ranking-pos { font-size: 20px; font-weight: bold; color: #48bb78; width: 50px; }
+        .ranking-nome { flex: 1; font-weight: 500; }
+        .ranking-pontos { font-size: 18px; font-weight: bold; color: #2d3748; }
+        .mensagem { padding: 10px; border-radius: 8px; margin-bottom: 15px; display: none; }
+        .mensagem.erro { background: #fed7d7; color: #c53030; display: block; }
+        .mensagem.sucesso { background: #c6f6d5; color: #276749; display: block; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .tab { background: white; border: none; padding: 12px 24px; border-radius: 10px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
+        .tab.ativo { background: #48bb78; color: white; }
+        .tab-content { display: none; }
+        .tab-content.ativo { display: block; }
+        .login-container { max-width: 450px; margin: 50px auto; }
+        .alternar-form { text-align: center; margin-top: 15px; }
+        .alternar-form a { color: #48bb78; cursor: pointer; text-decoration: none; }
+        .aviso-admin { background: #fef5e7; border-left: 4px solid #e67e22; padding: 12px; margin-bottom: 20px; border-radius: 8px; color: #e67e22; font-size: 14px; }
+        .info-admin { background: #e8f0fe; border-left: 4px solid #4299e1; padding: 12px; margin-bottom: 20px; border-radius: 8px; color: #2b6cb0; font-size: 14px; }
+        .btn-reset { background: #e53e3e; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; margin-top: 10px; font-size: 12px; }
+        .badge { display: inline-block; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; }
+        .badge-grupo { background: #48bb78; color: white; }
+        .badge-data { background: #4299e1; color: white; }
+        .badge-rodada { background: #ed8936; color: white; }
+        .bloqueado-warning { background: #fed7d7; color: #c53030; font-size: 11px; padding: 4px 8px; border-radius: 12px; display: inline-block; margin-left: 10px; }
+        .input-bloqueado { background: #edf2f7; cursor: not-allowed; opacity: 0.7; }
+        @media (max-width: 768px) { .jogos-grid { grid-template-columns: 1fr; } .tabela-classificacao { font-size: 12px; } }
+    </style>
+</head>
+<body>
+    <div class="container" id="app"></div>
+
+    <script>
+        // ==================== CONFIGURAÇÃO OFICIAL DOS GRUPOS ====================
+        const gruposConfig = {
+            'A': ['México', 'África do Sul', 'Coreia do Sul', 'República Tcheca'],
+            'B': ['Canadá', 'Bósnia', 'Qatar', 'Suíça'],
+            'C': ['Brasil', 'Marrocos', 'Haiti', 'Escócia'],
+            'D': ['Estados Unidos', 'Paraguai', 'Austrália', 'Turquia'],
+            'E': ['Alemanha', 'Curaçau', 'Costa do Marfim', 'Equador'],
+            'F': ['Holanda', 'Japão', 'Suécia', 'Tunísia'],
+            'G': ['Bélgica', 'Egito', 'Irã', 'Nova Zelândia'],
+            'H': ['Espanha', 'Cabo Verde', 'Arábia Saudita', 'Uruguai'],
+            'I': ['França', 'Senegal', 'Iraque', 'Noruega'],
+            'J': ['Argentina', 'Argélia', 'Áustria', 'Jordânia'],
+            'K': ['Portugal', 'Congo', 'Uzbequistão', 'Colômbia'],
+            'L': ['Inglaterra', 'Croácia', 'Gana', 'Panamá']
+        };
+
+        // ==================== CALENDÁRIO OFICIAL FIFA 2026 ====================
+        function gerarJogosFaseGrupos() {
+            return [
+                // GRUPO A
+                { id: 1,  grupo: 'A', timeA: 'México',         timeB: 'África do Sul',   fase: 'grupos', golsA: null, golsB: null, data: '11/06/2026', horario: '16:00', rodada: 1 },
+                { id: 2,  grupo: 'A', timeA: 'Coreia do Sul',  timeB: 'República Tcheca',fase: 'grupos', golsA: null, golsB: null, data: '11/06/2026', horario: '23:00', rodada: 1 },
+                { id: 3,  grupo: 'A', timeA: 'República Tcheca',timeB:'África do Sul',   fase: 'grupos', golsA: null, golsB: null, data: '18/06/2026', horario: '13:00', rodada: 2 },
+                { id: 4,  grupo: 'A', timeA: 'México',         timeB: 'Coreia do Sul',   fase: 'grupos', golsA: null, golsB: null, data: '18/06/2026', horario: '22:00', rodada: 2 },
+                { id: 5,  grupo: 'A', timeA: 'República Tcheca',timeB:'México',          fase: 'grupos', golsA: null, golsB: null, data: '24/06/2026', horario: '22:00', rodada: 3 },
+                { id: 6,  grupo: 'A', timeA: 'África do Sul',  timeB: 'Coreia do Sul',   fase: 'grupos', golsA: null, golsB: null, data: '24/06/2026', horario: '22:00', rodada: 3 },
+                // GRUPO B
+                { id: 7,  grupo: 'B', timeA: 'Canadá',         timeB: 'Bósnia',          fase: 'grupos', golsA: null, golsB: null, data: '12/06/2026', horario: '16:00', rodada: 1 },
+                { id: 8,  grupo: 'B', timeA: 'Qatar',          timeB: 'Suíça',           fase: 'grupos', golsA: null, golsB: null, data: '13/06/2026', horario: '16:00', rodada: 1 },
+                { id: 9,  grupo: 'B', timeA: 'Suíça',          timeB: 'Bósnia',          fase: 'grupos', golsA: null, golsB: null, data: '18/06/2026', horario: '16:00', rodada: 2 },
+                { id: 10, grupo: 'B', timeA: 'Canadá',         timeB: 'Qatar',           fase: 'grupos', golsA: null, golsB: null, data: '18/06/2026', horario: '19:00', rodada: 2 },
+                { id: 11, grupo: 'B', timeA: 'Suíça',          timeB: 'Canadá',          fase: 'grupos', golsA: null, golsB: null, data: '24/06/2026', horario: '16:00', rodada: 3 },
+                { id: 12, grupo: 'B', timeA: 'Bósnia',         timeB: 'Qatar',           fase: 'grupos', golsA: null, golsB: null, data: '24/06/2026', horario: '16:00', rodada: 3 },
+                // GRUPO C
+                { id: 13, grupo: 'C', timeA: 'Brasil',         timeB: 'Marrocos',        fase: 'grupos', golsA: null, golsB: null, data: '13/06/2026', horario: '19:00', rodada: 1 },
+                { id: 14, grupo: 'C', timeA: 'Haiti',          timeB: 'Escócia',         fase: 'grupos', golsA: null, golsB: null, data: '13/06/2026', horario: '22:00', rodada: 1 },
+                { id: 15, grupo: 'C', timeA: 'Escócia',        timeB: 'Marrocos',        fase: 'grupos', golsA: null, golsB: null, data: '19/06/2026', horario: '19:00', rodada: 2 },
+                { id: 16, grupo: 'C', timeA: 'Brasil',         timeB: 'Haiti',           fase: 'grupos', golsA: null, golsB: null, data: '19/06/2026', horario: '21:30', rodada: 2 },
+                { id: 17, grupo: 'C', timeA: 'Escócia',        timeB: 'Brasil',          fase: 'grupos', golsA: null, golsB: null, data: '24/06/2026', horario: '19:00', rodada: 3 },
+                { id: 18, grupo: 'C', timeA: 'Marrocos',       timeB: 'Haiti',           fase: 'grupos', golsA: null, golsB: null, data: '24/06/2026', horario: '19:00', rodada: 3 },
+                // GRUPO D
+                { id: 19, grupo: 'D', timeA: 'Estados Unidos', timeB: 'Paraguai',        fase: 'grupos', golsA: null, golsB: null, data: '12/06/2026', horario: '22:00', rodada: 1 },
+                { id: 20, grupo: 'D', timeA: 'Austrália',      timeB: 'Turquia',         fase: 'grupos', golsA: null, golsB: null, data: '13/06/2026', horario: '01:00', rodada: 1 },
+                { id: 21, grupo: 'D', timeA: 'Turquia',        timeB: 'Paraguai',        fase: 'grupos', golsA: null, golsB: null, data: '19/06/2026', horario: '01:00', rodada: 2 },
+                { id: 22, grupo: 'D', timeA: 'Estados Unidos', timeB: 'Austrália',       fase: 'grupos', golsA: null, golsB: null, data: '19/06/2026', horario: '16:00', rodada: 2 },
+                { id: 23, grupo: 'D', timeA: 'Turquia',        timeB: 'Estados Unidos',  fase: 'grupos', golsA: null, golsB: null, data: '25/06/2026', horario: '23:00', rodada: 3 },
+                { id: 24, grupo: 'D', timeA: 'Paraguai',       timeB: 'Austrália',       fase: 'grupos', golsA: null, golsB: null, data: '25/06/2026', horario: '23:00', rodada: 3 },
+                // GRUPO E
+                { id: 25, grupo: 'E', timeA: 'Alemanha',       timeB: 'Curaçau',         fase: 'grupos', golsA: null, golsB: null, data: '14/06/2026', horario: '14:00', rodada: 1 },
+                { id: 26, grupo: 'E', timeA: 'Costa do Marfim',timeB: 'Equador',         fase: 'grupos', golsA: null, golsB: null, data: '14/06/2026', horario: '20:00', rodada: 1 },
+                { id: 27, grupo: 'E', timeA: 'Alemanha',       timeB: 'Costa do Marfim', fase: 'grupos', golsA: null, golsB: null, data: '20/06/2026', horario: '17:00', rodada: 2 },
+                { id: 28, grupo: 'E', timeA: 'Equador',        timeB: 'Curaçau',         fase: 'grupos', golsA: null, golsB: null, data: '20/06/2026', horario: '21:00', rodada: 2 },
+                { id: 29, grupo: 'E', timeA: 'Curaçau',        timeB: 'Costa do Marfim', fase: 'grupos', golsA: null, golsB: null, data: '25/06/2026', horario: '17:00', rodada: 3 },
+                { id: 30, grupo: 'E', timeA: 'Equador',        timeB: 'Alemanha',        fase: 'grupos', golsA: null, golsB: null, data: '25/06/2026', horario: '17:00', rodada: 3 },
+                // GRUPO F
+                { id: 31, grupo: 'F', timeA: 'Holanda',        timeB: 'Japão',           fase: 'grupos', golsA: null, golsB: null, data: '14/06/2026', horario: '17:00', rodada: 1 },
+                { id: 32, grupo: 'F', timeA: 'Suécia',         timeB: 'Tunísia',         fase: 'grupos', golsA: null, golsB: null, data: '14/06/2026', horario: '23:00', rodada: 1 },
+                { id: 33, grupo: 'F', timeA: 'Tunísia',        timeB: 'Japão',           fase: 'grupos', golsA: null, golsB: null, data: '20/06/2026', horario: '01:00', rodada: 2 },
+                { id: 34, grupo: 'F', timeA: 'Holanda',        timeB: 'Suécia',          fase: 'grupos', golsA: null, golsB: null, data: '20/06/2026', horario: '14:00', rodada: 2 },
+                { id: 35, grupo: 'F', timeA: 'Japão',          timeB: 'Suécia',          fase: 'grupos', golsA: null, golsB: null, data: '25/06/2026', horario: '20:00', rodada: 3 },
+                { id: 36, grupo: 'F', timeA: 'Tunísia',        timeB: 'Holanda',         fase: 'grupos', golsA: null, golsB: null, data: '25/06/2026', horario: '20:00', rodada: 3 },
+                // GRUPO G
+                { id: 37, grupo: 'G', timeA: 'Bélgica',        timeB: 'Egito',           fase: 'grupos', golsA: null, golsB: null, data: '15/06/2026', horario: '16:00', rodada: 1 },
+                { id: 38, grupo: 'G', timeA: 'Irã',            timeB: 'Nova Zelândia',   fase: 'grupos', golsA: null, golsB: null, data: '15/06/2026', horario: '22:00', rodada: 1 },
+                { id: 39, grupo: 'G', timeA: 'Bélgica',        timeB: 'Irã',             fase: 'grupos', golsA: null, golsB: null, data: '21/06/2026', horario: '16:00', rodada: 2 },
+                { id: 40, grupo: 'G', timeA: 'Nova Zelândia',  timeB: 'Egito',           fase: 'grupos', golsA: null, golsB: null, data: '21/06/2026', horario: '22:00', rodada: 2 },
+                { id: 41, grupo: 'G', timeA: 'Egito',          timeB: 'Irã',             fase: 'grupos', golsA: null, golsB: null, data: '27/06/2026', horario: '00:00', rodada: 3 },
+                { id: 42, grupo: 'G', timeA: 'Nova Zelândia',  timeB: 'Bélgica',         fase: 'grupos', golsA: null, golsB: null, data: '27/06/2026', horario: '00:00', rodada: 3 },
+                // GRUPO H
+                { id: 43, grupo: 'H', timeA: 'Espanha',        timeB: 'Cabo Verde',      fase: 'grupos', golsA: null, golsB: null, data: '15/06/2026', horario: '13:00', rodada: 1 },
+                { id: 44, grupo: 'H', timeA: 'Arábia Saudita', timeB: 'Uruguai',         fase: 'grupos', golsA: null, golsB: null, data: '15/06/2026', horario: '19:00', rodada: 1 },
+                { id: 45, grupo: 'H', timeA: 'Espanha',        timeB: 'Arábia Saudita',  fase: 'grupos', golsA: null, golsB: null, data: '21/06/2026', horario: '13:00', rodada: 2 },
+                { id: 46, grupo: 'H', timeA: 'Uruguai',        timeB: 'Cabo Verde',      fase: 'grupos', golsA: null, golsB: null, data: '21/06/2026', horario: '19:00', rodada: 2 },
+                { id: 47, grupo: 'H', timeA: 'Cabo Verde',     timeB: 'Arábia Saudita',  fase: 'grupos', golsA: null, golsB: null, data: '26/06/2026', horario: '21:00', rodada: 3 },
+                { id: 48, grupo: 'H', timeA: 'Uruguai',        timeB: 'Espanha',         fase: 'grupos', golsA: null, golsB: null, data: '26/06/2026', horario: '21:00', rodada: 3 },
+                // GRUPO I
+                { id: 49, grupo: 'I', timeA: 'França',         timeB: 'Senegal',         fase: 'grupos', golsA: null, golsB: null, data: '16/06/2026', horario: '16:00', rodada: 1 },
+                { id: 50, grupo: 'I', timeA: 'Iraque',         timeB: 'Noruega',         fase: 'grupos', golsA: null, golsB: null, data: '16/06/2026', horario: '19:00', rodada: 1 },
+                { id: 51, grupo: 'I', timeA: 'França',         timeB: 'Iraque',          fase: 'grupos', golsA: null, golsB: null, data: '22/06/2026', horario: '18:00', rodada: 2 },
+                { id: 52, grupo: 'I', timeA: 'Noruega',        timeB: 'Senegal',         fase: 'grupos', golsA: null, golsB: null, data: '22/06/2026', horario: '21:00', rodada: 2 },
+                { id: 53, grupo: 'I', timeA: 'Noruega',        timeB: 'França',          fase: 'grupos', golsA: null, golsB: null, data: '26/06/2026', horario: '16:00', rodada: 3 },
+                { id: 54, grupo: 'I', timeA: 'Senegal',        timeB: 'Iraque',          fase: 'grupos', golsA: null, golsB: null, data: '26/06/2026', horario: '16:00', rodada: 3 },
+                // GRUPO J
+                { id: 55, grupo: 'J', timeA: 'Áustria',        timeB: 'Jordânia',        fase: 'grupos', golsA: null, golsB: null, data: '16/06/2026', horario: '01:00', rodada: 1 },
+                { id: 56, grupo: 'J', timeA: 'Argentina',      timeB: 'Argélia',         fase: 'grupos', golsA: null, golsB: null, data: '16/06/2026', horario: '22:00', rodada: 1 },
+                { id: 57, grupo: 'J', timeA: 'Jordânia',       timeB: 'Argélia',         fase: 'grupos', golsA: null, golsB: null, data: '22/06/2026', horario: '00:00', rodada: 2 },
+                { id: 58, grupo: 'J', timeA: 'Argentina',      timeB: 'Áustria',         fase: 'grupos', golsA: null, golsB: null, data: '22/06/2026', horario: '14:00', rodada: 2 },
+                { id: 59, grupo: 'J', timeA: 'Argélia',        timeB: 'Áustria',         fase: 'grupos', golsA: null, golsB: null, data: '27/06/2026', horario: '23:00', rodada: 3 },
+                { id: 60, grupo: 'J', timeA: 'Jordânia',       timeB: 'Argentina',       fase: 'grupos', golsA: null, golsB: null, data: '27/06/2026', horario: '23:00', rodada: 3 },
+                // GRUPO K
+                { id: 61, grupo: 'K', timeA: 'Portugal',       timeB: 'Congo',           fase: 'grupos', golsA: null, golsB: null, data: '17/06/2026', horario: '14:00', rodada: 1 },
+                { id: 62, grupo: 'K', timeA: 'Uzbequistão',    timeB: 'Colômbia',        fase: 'grupos', golsA: null, golsB: null, data: '17/06/2026', horario: '23:00', rodada: 1 },
+                { id: 63, grupo: 'K', timeA: 'Portugal',       timeB: 'Uzbequistão',     fase: 'grupos', golsA: null, golsB: null, data: '23/06/2026', horario: '14:00', rodada: 2 },
+                { id: 64, grupo: 'K', timeA: 'Colômbia',       timeB: 'Congo',           fase: 'grupos', golsA: null, golsB: null, data: '23/06/2026', horario: '23:00', rodada: 2 },
+                { id: 65, grupo: 'K', timeA: 'Colômbia',       timeB: 'Portugal',        fase: 'grupos', golsA: null, golsB: null, data: '27/06/2026', horario: '20:30', rodada: 3 },
+                { id: 66, grupo: 'K', timeA: 'Congo',          timeB: 'Uzbequistão',     fase: 'grupos', golsA: null, golsB: null, data: '27/06/2026', horario: '20:30', rodada: 3 },
+                // GRUPO L
+                { id: 67, grupo: 'L', timeA: 'Inglaterra',     timeB: 'Croácia',         fase: 'grupos', golsA: null, golsB: null, data: '17/06/2026', horario: '17:00', rodada: 1 },
+                { id: 68, grupo: 'L', timeA: 'Gana',           timeB: 'Panamá',          fase: 'grupos', golsA: null, golsB: null, data: '17/06/2026', horario: '20:00', rodada: 1 },
+                { id: 69, grupo: 'L', timeA: 'Inglaterra',     timeB: 'Gana',            fase: 'grupos', golsA: null, golsB: null, data: '23/06/2026', horario: '17:00', rodada: 2 },
+                { id: 70, grupo: 'L', timeA: 'Panamá',         timeB: 'Croácia',         fase: 'grupos', golsA: null, golsB: null, data: '23/06/2026', horario: '20:00', rodada: 2 },
+                { id: 71, grupo: 'L', timeA: 'Panamá',         timeB: 'Inglaterra',      fase: 'grupos', golsA: null, golsB: null, data: '27/06/2026', horario: '18:00', rodada: 3 },
+                { id: 72, grupo: 'L', timeA: 'Croácia',        timeB: 'Gana',            fase: 'grupos', golsA: null, golsB: null, data: '27/06/2026', horario: '18:00', rodada: 3 },
+            ];
+        }
+
+        let jogos = [];
+        let usuarios = [];
+        let usuarioLogado = null;
+
+        // ==================== FUNÇÃO DE VERIFICAÇÃO DE BLOQUEIO POR HORÁRIO ====================
+        function isJogoBloqueado(jogo) {
+            if (!jogo || !jogo.data || !jogo.horario) return false;
+            // Converte a string "DD/MM/AAAA HH:MM" para um objeto Date
+            const partesData = jogo.data.split('/');
+            if (partesData.length !== 3) return false;
+            const dia = parseInt(partesData[0]);
+            const mes = parseInt(partesData[1]) - 1; // Mês é 0-index
+            const ano = parseInt(partesData[2]);
+            const partesHora = jogo.horario.split(':');
+            const hora = parseInt(partesHora[0]);
+            const minuto = parseInt(partesHora[1]);
+            const dataJogo = new Date(ano, mes, dia, hora, minuto);
+            const agora = new Date();
+            return agora >= dataJogo;
+        }
+
+        // ==================== FUNÇÕES DE PERSISTÊNCIA ====================
+        function inicializarDados() {
+            jogos = gerarJogosFaseGrupos();
+            localStorage.setItem('copa2026_jogos', JSON.stringify(jogos));
+            const adminUser = { id: 1, nome: "admin", senha: "admin123", isAdmin: true };
+            usuarios = [adminUser];
+            localStorage.setItem('copa2026_usuarios', JSON.stringify(usuarios));
+        }
+        
+        function carregarDados() {
+            const jogosSalvos = localStorage.getItem('copa2026_jogos');
+            if (jogosSalvos) {
+                jogos = JSON.parse(jogosSalvos);
+            } else {
+                inicializarDados();
+            }
+            const usuariosSalvos = localStorage.getItem('copa2026_usuarios');
+            if (usuariosSalvos) {
+                usuarios = JSON.parse(usuariosSalvos);
+                const adminExiste = usuarios.find(u => u.nome === "admin");
+                if (!adminExiste) {
+                    usuarios.unshift({ id: 1, nome: "admin", senha: "admin123", isAdmin: true });
+                    localStorage.setItem('copa2026_usuarios', JSON.stringify(usuarios));
+                }
+            } else {
+                inicializarDados();
+            }
+            const sessaoSalva = localStorage.getItem('copa2026_sessao');
+            if (sessaoSalva) {
+                try {
+                    const sessao = JSON.parse(sessaoSalva);
+                    const usuarioEncontrado = usuarios.find(u => u.id === sessao.usuarioId);
+                    if (usuarioEncontrado) usuarioLogado = usuarioEncontrado;
+                } catch(e) {}
+            }
+        }
+
+        function salvarUsuarios() { localStorage.setItem('copa2026_usuarios', JSON.stringify(usuarios)); }
+        function salvarJogos() { localStorage.setItem('copa2026_jogos', JSON.stringify(jogos)); }
+        function salvarSessao() {
+            if (usuarioLogado) localStorage.setItem('copa2026_sessao', JSON.stringify({ usuarioId: usuarioLogado.id }));
+            else localStorage.removeItem('copa2026_sessao');
+        }
+
+        // ==================== LÓGICA DE PONTUAÇÃO ====================
+        function calcularPontosJogo(jogo, palpiteA, palpiteB) {
+            if (jogo.golsA === null || jogo.golsB === null) return 0;
+            if (palpiteA === '' || palpiteB === '') return 0;
+            const pA = parseInt(palpiteA), pB = parseInt(palpiteB);
+            const rA = jogo.golsA, rB = jogo.golsB;
+            if (isNaN(pA) || isNaN(pB)) return 0;
+            if (pA === rA && pB === rB) return 6;
+            const empateReal = (rA === rB), empatePalpite = (pA === pB);
+            if (empateReal && empatePalpite) return 1;
+            if (!empateReal && !empatePalpite) {
+                const ganhadorReal = rA > rB ? 'A' : 'B';
+                const ganhadorPalpite = pA > pB ? 'A' : 'B';
+                if (ganhadorReal === ganhadorPalpite) return 3;
+            }
+            return 0;
+        }
+
+        function calcularPontuacaoUsuario(usuario) {
+            if (usuario.isAdmin) return 0;
+            let pontos = 0;
+            if (!usuario.palpites) return 0;
+            for (const palpite of usuario.palpites) {
+                const jogo = jogos.find(j => j.id === palpite.jogoId);
+                if (jogo) pontos += calcularPontosJogo(jogo, palpite.palpiteA, palpite.palpiteB);
+            }
+            return pontos;
+        }
+
+        // ==================== CLASSIFICAÇÃO ====================
+        function calcularClassificacaoGrupo(grupo) {
+            const selecoes = gruposConfig[grupo];
+            const tabela = {};
+            selecoes.forEach(selecao => { tabela[selecao] = { P:0,J:0,V:0,E:0,D:0,GP:0,GC:0,SG:0 }; });
+            const jogosGrupo = jogos.filter(j => j.grupo === grupo && j.golsA !== null && j.golsB !== null);
+            jogosGrupo.forEach(jogo => {
+                const timeA = jogo.timeA, timeB = jogo.timeB, golsA = jogo.golsA, golsB = jogo.golsB;
+                tabela[timeA].J++; tabela[timeB].J++;
+                tabela[timeA].GP += golsA; tabela[timeA].GC += golsB;
+                tabela[timeB].GP += golsB; tabela[timeB].GC += golsA;
+                if (golsA > golsB) { tabela[timeA].V++; tabela[timeA].P += 3; tabela[timeB].D++; }
+                else if (golsA < golsB) { tabela[timeB].V++; tabela[timeB].P += 3; tabela[timeA].D++; }
+                else { tabela[timeA].E++; tabela[timeA].P += 1; tabela[timeB].E++; tabela[timeB].P += 1; }
+            });
+            Object.keys(tabela).forEach(selecao => { tabela[selecao].SG = tabela[selecao].GP - tabela[selecao].GC; });
+            return Object.entries(tabela).map(([nome, dados]) => ({ nome, ...dados })).sort((a,b) => {
+                if (a.P !== b.P) return b.P - a.P;
+                if (a.SG !== b.SG) return b.SG - a.SG;
+                return b.GP - a.GP;
+            });
+        }
+
+        // ==================== PALPITES ====================
+        function inicializarPalpites(usuario) {
+            if (!usuario.isAdmin && (!usuario.palpites || usuario.palpites.length !== jogos.length)) {
+                usuario.palpites = jogos.map(jogo => ({ jogoId: jogo.id, palpiteA: '', palpiteB: '' }));
+                salvarUsuarios();
+            }
+        }
+
+        function salvarPalpite(usuario, jogoId, palpiteA, palpiteB) {
+            if (usuario.isAdmin) return false;
+            const jogo = jogos.find(j => j.id === jogoId);
+            if (jogo && isJogoBloqueado(jogo)) {
+                alert("⛔ Este jogo já começou ou já passou! Não é mais possível alterar o palpite.");
+                return false;
+            }
+            if (!usuario.palpites) inicializarPalpites(usuario);
+            const palpite = usuario.palpites.find(p => p.jogoId === jogoId);
+            if (palpite) {
+                palpite.palpiteA = palpiteA;
+                palpite.palpiteB = palpiteB;
+                salvarUsuarios();
+                return true;
+            }
+            return false;
+        }
+
+        // ==================== USUÁRIOS ====================
+        function cadastrarUsuario(nome, senha) {
+            if (usuarios.find(u => u.nome === nome)) return { sucesso: false, mensagem: 'Nome de usuário já existe!' };
+            if (nome.length < 3) return { sucesso: false, mensagem: 'Nome deve ter pelo menos 3 caracteres!' };
+            if (senha.length < 4) return { sucesso: false, mensagem: 'Senha deve ter pelo menos 4 caracteres!' };
+            const novoUsuario = { id: Date.now(), nome, senha, isAdmin: false, palpites: jogos.map(j => ({ jogoId: j.id, palpiteA: '', palpiteB: '' })) };
+            usuarios.push(novoUsuario);
+            salvarUsuarios();
+            return { sucesso: true, mensagem: 'Cadastro realizado com sucesso!' };
+        }
+        
+        function fazerLogin(nome, senha) {
+            const usuario = usuarios.find(u => u.nome === nome && u.senha === senha);
+            if (usuario) { usuarioLogado = usuario; salvarSessao(); return { sucesso: true, mensagem: 'Login realizado com sucesso!' }; }
+            return { sucesso: false, mensagem: 'Usuário ou senha inválidos!\n\nAdmin: admin / admin123' };
+        }
+        
+        function fazerLogout() { usuarioLogado = null; salvarSessao(); renderizar(); }
+        
+        // ==================== RESULTADOS REAIS ====================
+        function atualizarResultadoReal(jogoId, golsA, golsB) {
+            if (!usuarioLogado?.isAdmin) { alert("Apenas o administrador pode atualizar os resultados reais!"); return false; }
+            const jogo = jogos.find(j => j.id === jogoId);
+            if (jogo) { jogo.golsA = golsA === '' ? null : parseInt(golsA); jogo.golsB = golsB === '' ? null : parseInt(golsB); salvarJogos(); return true; }
+            return false;
+        }
+        
+        // ==================== RANKING ====================
+        function obterRanking() {
+            const usuariosComuns = usuarios.filter(u => !u.isAdmin);
+            const ranking = usuariosComuns.map(u => ({ nome: u.nome, pontos: calcularPontuacaoUsuario(u) }));
+            ranking.sort((a,b) => b.pontos - a.pontos);
+            return ranking;
+        }
+        
+        // ==================== RENDERIZAÇÃO ====================
+        function renderizar() {
+            const app = document.getElementById('app');
+            if (!usuarioLogado) {
+                app.innerHTML = renderizarLoginCadastro();
+                adicionarEventosLoginCadastro();
+            } else {
+                if (!usuarioLogado.isAdmin) inicializarPalpites(usuarioLogado);
+                app.innerHTML = renderizarSistema();
+                adicionarEventosSistema();
+            }
+        }
+        
+        function renderizarLoginCadastro() {
+            return `<div class="login-container"><div class="card"><div style="text-align:center;margin-bottom:20px;"><h1>🏆 Copa do Mundo 2026</h1><p>Bolão Oficial de Palpites</p><div class="info-admin">🔐 <strong>Acesso Administrador:</strong><br>Usuário: <strong>admin</strong><br>Senha: <strong>admin123</strong></div><button class="btn-reset" id="btnResetSistema">🔄 Resetar Sistema</button></div><div id="mensagemLogin" class="mensagem"></div><div id="formLogin"><div class="form-group"><label>📝 Usuário</label><input type="text" id="loginNome" placeholder="Digite seu usuário"></div><div class="form-group"><label>🔒 Senha</label><input type="password" id="loginSenha" placeholder="Digite sua senha"></div><button class="btn btn-primary" id="btnLogin" style="width:100%;">Entrar</button></div><div class="alternar-form"><a id="mostrarCadastro">Não tem conta? Cadastre-se</a></div><div id="formCadastro" style="display:none;margin-top:20px;"><div class="form-group"><label>📝 Seu nome</label><input type="text" id="cadastroNome" placeholder="Digite seu nome"></div><div class="form-group"><label>🔒 Criar senha</label><input type="password" id="cadastroSenha" placeholder="Mínimo 4 caracteres"></div><button class="btn btn-primary" id="btnCadastro" style="width:100%;">Cadastrar</button><div class="alternar-form"><a id="voltarLogin">← Voltar para o login</a></div></div></div></div>`;
+        }
+        
+        function renderizarSistema() {
+            const ranking = obterRanking();
+            const posicaoUsuario = usuarioLogado.isAdmin ? null : ranking.findIndex(r => r.nome === usuarioLogado.nome) + 1;
+            const pontosUsuario = usuarioLogado.isAdmin ? 0 : calcularPontuacaoUsuario(usuarioLogado);
+            return `<div class="header"><div class="logo"><h1>🏆 Copa do Mundo 2026</h1><p>Canadá • México • EUA</p></div><div class="user-info"><span class="user-name">👤 ${usuarioLogado.nome}</span>${usuarioLogado.isAdmin ? '<span class="admin-badge">👑 ADMIN</span>' : `<span>⭐ ${pontosUsuario} pts</span><span>🏅 ${posicaoUsuario}º</span>`}<button class="btn-sair" id="btnSair">Sair</button></div></div><div class="tabs">${!usuarioLogado.isAdmin ? '<button class="tab ativo" data-tab="palpites">📝 Meus Palpites</button>' : ''}${usuarioLogado.isAdmin ? '<button class="tab ativo" data-tab="resultados">⚽ Resultados Reais</button>' : ''}<button class="tab" data-tab="classificacao">📊 Classificação dos Grupos</button><button class="tab" data-tab="ranking">🏅 Ranking dos Palpites</button></div>${!usuarioLogado.isAdmin ? `<div id="tab-palpites" class="tab-content ativo">${renderizarPalpites()}</div>` : ''}${usuarioLogado.isAdmin ? `<div id="tab-resultados" class="tab-content ativo">${renderizarResultadosReais()}</div>` : ''}<div id="tab-classificacao" class="tab-content">${renderizarClassificacaoGrupos()}</div><div id="tab-ranking" class="tab-content">${renderizarRankingPalpites()}</div>`;
+        }
+        
+        // ==================== RENDERIZAÇÃO DA ABA PALPITES COM TRAVA ====================
+        function renderizarPalpites() {
+            if (!usuarioLogado.palpites || usuarioLogado.palpites.length === 0) inicializarPalpites(usuarioLogado);
+            let html = '<div class="card"><h2>📝 Registre seus palpites</h2><div class="aviso-admin" style="background:#e8f0fe; border-left-color:#4299e1;">⚽ Os jogos estão organizados por grupo. Palpite com cuidado! Jogos que já começaram ou passaram ficam bloqueados.</div>';
+            const gruposOrdenados = Object.keys(gruposConfig).sort();
+            const mapaPalpites = {};
+            (usuarioLogado.palpites || []).forEach(p => { mapaPalpites[Number(p.jogoId)] = p; });
+            for (const grupo of gruposOrdenados) {
+                const jogosGrupo = jogos.filter(j => j.grupo === grupo);
+                if (jogosGrupo.length === 0) continue;
+                html += `<div class="grupo-section"><div class="grupo-titulo">Grupo ${grupo}</div><div class="jogos-grid">`;
+                const jogosOrdenados = [...jogosGrupo].sort((a, b) => a.rodada - b.rodada);
+                for (const jogo of jogosOrdenados) {
+                    const bloqueado = isJogoBloqueado(jogo);
+                    const palpite = mapaPalpites[jogo.id];
+                    const valA = (palpite?.palpiteA !== undefined && palpite?.palpiteA !== '') ? palpite.palpiteA : '';
+                    const valB = (palpite?.palpiteB !== undefined && palpite?.palpiteB !== '') ? palpite.palpiteB : '';
+                    const temPalpite = (valA !== '' && valB !== '');
+                    const resultadoReal = (jogo.golsA !== null && jogo.golsB !== null) ? `<div class="jogo-resultado" style="margin-top:10px;padding-top:8px;border-top:1px dashed #e2e8f0;font-size:12px;color:#2b6cb0;">🏆 Resultado oficial: ${jogo.golsA} - ${jogo.golsB}</div>` : '<div class="jogo-resultado" style="margin-top:10px;padding-top:8px;border-top:1px dashed #e2e8f0;font-size:12px;color:#718096;">⏳ Aguardando resultado oficial...</div>';
+                    const disabledAttr = bloqueado ? 'disabled' : '';
+                    const classeBloqueado = bloqueado ? 'input-bloqueado' : '';
+                    const avisoBloqueio = bloqueado ? '<span class="bloqueado-warning">🔒 Palpites bloqueados (jogo já iniciado)</span>' : '';
+                    html += `<div class="jogo-card"><div class="jogo-times"><span style="font-weight:bold;font-size:16px;">${jogo.timeA} 🆚 ${jogo.timeB}</span><div><span class="badge badge-grupo">Grupo ${jogo.grupo}</span><span class="badge badge-data">📅 ${jogo.data}</span><span class="badge badge-rodada">🕐 ${jogo.horario}</span></div></div><div class="jogo-palpite"><div style="display:flex;align-items:center;gap:10px;"><span>${jogo.timeA}</span><input type="number" class="palpiteA-${jogo.id} ${classeBloqueado}" value="${valA}" placeholder="-" style="width:70px;padding:8px;text-align:center;border:2px solid #cbd5e0;border-radius:8px;font-size:16px;" ${disabledAttr}></div><span style="font-weight:bold;">vs</span><div style="display:flex;align-items:center;gap:10px;"><input type="number" class="palpiteB-${jogo.id} ${classeBloqueado}" value="${valB}" placeholder="-" style="width:70px;padding:8px;text-align:center;border:2px solid #cbd5e0;border-radius:8px;font-size:16px;" ${disabledAttr}><span>${jogo.timeB}</span></div><button class="btn-salvar-individual" data-jogo="${jogo.id}" ${disabledAttr} style="background:#48bb78;color:white;border:none;padding:8px 20px;border-radius:8px;cursor:pointer;font-weight:600;">💾 Salvar</button>${temPalpite && !bloqueado ? `<span class="status-salvo" id="status-${jogo.id}">✔ salvo</span>` : (temPalpite && bloqueado ? `<span class="status-salvo" id="status-${jogo.id}">✔ salvo (bloqueado)</span>` : `<span class="status-salvo" id="status-${jogo.id}" style="display:none;">✔ salvo</span>`)}<span class="feedback-salvo" id="feedback-${jogo.id}" style="display:none;"></span>${avisoBloqueio}</div>${resultadoReal}</div>`;
+                }
+                html += `</div></div>`;
+            }
+            html += `</div>`;
+            return html;
+        }
+        
+        function renderizarResultadosReais() {
+            let html = '<div class="card"><h2>⚽ Resultados Reais dos Jogos</h2><div class="aviso-admin">🔒 Você é ADMIN. Aqui você insere os resultados reais dos jogos.</div>';
+            const gruposOrdenados = Object.keys(gruposConfig).sort();
+            for (const grupo of gruposOrdenados) {
+                const jogosGrupo = jogos.filter(j => j.grupo === grupo);
+                html += `<div class="grupo-section"><div class="grupo-titulo">Grupo ${grupo}</div><div class="jogos-grid">`;
+                const jogosOrdenados = [...jogosGrupo].sort((a, b) => a.rodada - b.rodada);
+                for (const jogo of jogosOrdenados) {
+                    html += `<div class="jogo-card"><div class="jogo-times"><span>${jogo.timeA} 🆚 ${jogo.timeB}</span><div><span class="badge badge-grupo">Grupo ${jogo.grupo}</span><span class="badge badge-data">${jogo.data}</span><span class="badge badge-rodada">${jogo.horario}</span></div></div><div class="jogo-palpite"><input type="number" id="resultA_${jogo.id}" value="${jogo.golsA !== null ? jogo.golsA : ''}" placeholder="?" style="width:70px;"><span>vs</span><input type="number" id="resultB_${jogo.id}" value="${jogo.golsB !== null ? jogo.golsB : ''}" placeholder="?" style="width:70px;"></div></div>`;
+                }
+                html += `</div></div>`;
+            }
+            html += `<button class="btn-success" id="salvarResultados">✅ Salvar resultados</button></div>`;
+            return html;
+        }
+        
+        function renderizarClassificacaoGrupos() {
+            let html = '<div class="card"><h2>📊 Classificação dos Grupos</h2>';
+            const gruposOrdenados = Object.keys(gruposConfig).sort();
+            for (const grupo of gruposOrdenados) {
+                const classificacao = calcularClassificacaoGrupo(grupo);
+                html += `<div class="grupo-section"><div class="grupo-titulo">Grupo ${grupo}</div><div class="tabela-classificacao"><table><thead><tr><th>Pos</th><th>Seleção</th><th>P</th><th>J</th><th>V</th><th>E</th><th>D</th><th>GP</th><th>GC</th><th>SG</th></tr></thead><tbody>`;
+                classificacao.forEach((time, idx) => {
+                    let medalha = idx===0?'🥇':idx===1?'🥈':idx===2?'🥉':`${idx+1}º`;
+                    html += `<tr><td>${medalha}</td><td align="left"><strong>${time.nome}</strong></td><td><strong>${time.P}</strong></td><td>${time.J}</td><td>${time.V}</td><td>${time.E}</td><td>${time.D}</td><td>${time.GP}</td><td>${time.GC}</td><td>${time.SG>0?'+'+time.SG:time.SG}</td></tr>`;
+                });
+                html += `</tbody></table></div></div>`;
+            }
+            html += `</div>`;
+            return html;
+        }
+        
+        function renderizarRankingPalpites() {
+            const ranking = obterRanking();
+            let html = '<div class="card"><h2>🏅 Ranking dos Palpites</h2>';
+            if (ranking.length === 0) html += '<p>Nenhum participante ainda. Faça seu cadastro e comece a palpitar!</p>';
+            else {
+                for (let i=0; i<ranking.length; i++) {
+                    const r = ranking[i];
+                    let medalha = i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}º`;
+                    html += `<div class="ranking-item"><div class="ranking-pos">${medalha}</div><div class="ranking-nome">${r.nome}</div><div class="ranking-pontos">${r.pontos} pontos</div></div>`;
+                }
+            }
+            html += '</div>';
+            return html;
+        }
+        
+        // ==================== EVENTOS ====================
+        function adicionarEventosLoginCadastro() {
+            const btnLogin = document.getElementById('btnLogin');
+            const btnCadastro = document.getElementById('btnCadastro');
+            const mostrarCadastro = document.getElementById('mostrarCadastro');
+            const voltarLogin = document.getElementById('voltarLogin');
+            const btnReset = document.getElementById('btnResetSistema');
+            const formLogin = document.getElementById('formLogin');
+            const formCadastro = document.getElementById('formCadastro');
+            const mensagemDiv = document.getElementById('mensagemLogin');
+            if (btnReset) btnReset.onclick = () => { if(confirm('ATENÇÃO! Isso vai apagar TODOS os dados.')){ localStorage.clear(); location.reload(); } };
+            if (btnLogin) btnLogin.onclick = () => {
+                const nome = document.getElementById('loginNome').value.trim();
+                const senha = document.getElementById('loginSenha').value;
+                const resultado = fazerLogin(nome, senha);
+                mensagemDiv.textContent = resultado.mensagem;
+                mensagemDiv.className = `mensagem ${resultado.sucesso ? 'sucesso' : 'erro'}`;
+                if (resultado.sucesso) setTimeout(() => renderizar(), 500);
+            };
+            if (btnCadastro) btnCadastro.onclick = () => {
+                const nome = document.getElementById('cadastroNome').value.trim();
+                const senha = document.getElementById('cadastroSenha').value;
+                const resultado = cadastrarUsuario(nome, senha);
+                mensagemDiv.textContent = resultado.mensagem;
+                mensagemDiv.className = `mensagem ${resultado.sucesso ? 'sucesso' : 'erro'}`;
+                if (resultado.sucesso) setTimeout(() => { formLogin.style.display='block'; formCadastro.style.display='none'; document.getElementById('loginNome').value=nome; document.getElementById('loginSenha').value=''; mensagemDiv.className='mensagem'; }, 1000);
+            };
+            if (mostrarCadastro) mostrarCadastro.onclick = () => { formLogin.style.display='none'; formCadastro.style.display='block'; mensagemDiv.className='mensagem'; };
+            if (voltarLogin) voltarLogin.onclick = () => { formLogin.style.display='block'; formCadastro.style.display='none'; mensagemDiv.className='mensagem'; };
+        }
+        
+        function adicionarEventosSistema() {
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.onclick = () => {
+                    const tabId = tab.dataset.tab;
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('ativo'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('ativo'));
+                    tab.classList.add('ativo');
+                    document.getElementById(`tab-${tabId}`).classList.add('ativo');
+                };
+            });
+            const btnSair = document.getElementById('btnSair');
+            if (btnSair) btnSair.onclick = () => fazerLogout();
+            
+            if (usuarioLogado && !usuarioLogado.isAdmin) {
+                document.querySelectorAll('.btn-salvar-individual').forEach(btn => {
+                    if (btn.disabled) return; // se já estiver desabilitado pelo bloqueio, não adiciona evento
+                    btn.onclick = (e) => {
+                        const jogoId = parseInt(btn.dataset.jogo);
+                        const jogo = jogos.find(j => j.id === jogoId);
+                        if (jogo && isJogoBloqueado(jogo)) {
+                            alert("⛔ Este jogo já começou! Não é mais possível alterar o palpite.");
+                            return;
+                        }
+                        const inputA = document.querySelector(`.palpiteA-${jogoId}`);
+                        const inputB = document.querySelector(`.palpiteB-${jogoId}`);
+                        let palpiteA = inputA.value.trim() === '' ? '' : parseInt(inputA.value);
+                        let palpiteB = inputB.value.trim() === '' ? '' : parseInt(inputB.value);
+                        if (palpiteA !== '' && (isNaN(palpiteA) || palpiteA < 0)) { alert('Número inválido para o primeiro time'); return; }
+                        if (palpiteB !== '' && (isNaN(palpiteB) || palpiteB < 0)) { alert('Número inválido para o segundo time'); return; }
+                        salvarPalpite(usuarioLogado, jogoId, palpiteA, palpiteB);
+                        const statusSpan = document.getElementById(`status-${jogoId}`);
+                        const feedbackSpan = document.getElementById(`feedback-${jogoId}`);
+                        if (palpiteA !== '' && palpiteB !== '') {
+                            statusSpan.style.display = 'inline-block';
+                            statusSpan.textContent = '✔ salvo';
+                            feedbackSpan.textContent = '✓ Palpite salvo!';
+                            feedbackSpan.style.color = '#276749';
+                        } else {
+                            statusSpan.style.display = 'none';
+                            feedbackSpan.textContent = '⚠️ Palpite removido';
+                            feedbackSpan.style.color = '#c53030';
+                        }
+                        feedbackSpan.style.display = 'inline-block';
+                        setTimeout(() => feedbackSpan.style.display = 'none', 2000);
+                        btn.style.backgroundColor = '#38a169';
+                        setTimeout(() => btn.style.backgroundColor = '#48bb78', 200);
+                    };
+                });
+            }
+            const btnResultados = document.getElementById('salvarResultados');
+            if (btnResultados && usuarioLogado?.isAdmin) btnResultados.onclick = () => {
+                jogos.forEach(jogo => {
+                    const inputA = document.getElementById(`resultA_${jogo.id}`);
+                    const inputB = document.getElementById(`resultB_${jogo.id}`);
+                    if (inputA && inputB) atualizarResultadoReal(jogo.id, inputA.value, inputB.value);
+                });
+                alert('Resultados salvos! Classificação e ranking atualizados.');
+                renderizar();
+            };
+        }
+        
+        // ==================== INICIALIZAÇÃO ====================
+        try {
+            carregarDados();
+            renderizar();
+        } catch(e) {
+            console.error(e);
+            document.getElementById('app').innerHTML = `<div style="color:white;padding:40px;">❌ Erro: ${e.message}<br><button onclick="localStorage.clear();location.reload()">Resetar</button></div>`;
+        }
+    </script>
+</body>
+</html>
